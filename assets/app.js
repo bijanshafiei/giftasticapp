@@ -4,6 +4,40 @@ var characters = ["Luke Skywalker", "Darth Vader", "Obi-Wan Kenobi", "Han Solo",
 var query = "http://api.giphy.com/v1/gifs/search?q=";
 var api_key = "dc6zaTOxFJmzC";
 
+// Establishes click event for button
+$("#buttons").on("click", ".chars-button", function (){
+	$("#gifs").empty();
+
+	var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + $(this).attr("data-name") + "&limit=10&api_key=dc6zaTOxFJmzC";
+	// AJAX call
+	$.ajax({
+		url:queryURL,
+		method: "GET"
+	}).done(function(response){
+
+		var results = response.data;
+		// console.log(response);
+
+		// Loop through results
+		for (var i = 0; i < results.length; i++) {
+			var charDiv = $("<div class='item'>");
+			var rating = results[i].rating;
+			var p = $("<p>").text("Rating: " + rating);
+
+			var charImg = $("<img>");
+			charImg.attr("src", results[i].images.fixed_height_still.url);
+			charImg.attr("data-still", results[i].images.fixed_height_still.url);
+			charImg.attr("data-animate", results[i].images.fixed_height.url);
+			charImg.attr("data-state", "still");
+			charImg.addClass("click-image");
+			charDiv.append(charImg);
+			charDiv.append(p);
+			charDiv.addClass("gif-div");
+			$("#gifs").prepend(charDiv);
+		}
+	})
+})
+
 
 // Takes strings from array and adds them as buttons to the HTML
 function createButtons () {
@@ -26,39 +60,21 @@ $("#add-char").on("click", function() {
 	createButtons();
 })
 
-// Establishes click event for button
-$("#buttons").on("click", ".chars-button", function (){
-	$("#gifs").empty();
 
-	var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + $(this).attr("data-name") + "&limit=10&api_key=dc6zaTOxFJmzC";
-	// AJAX call
-	$.ajax({
-		url:queryURL,
-		method: "GET"
-	}).done(function(response){
 
-		var results = response.data;
-		console.log(response)
+// Changes animation state of gifs when clicked
 
-		
-		for (var i = 0; i < results.length; i++) {
-			var charDiv = $("<div class='item'>");
-			var rating = results[i].rating;
-			var p = $("<p>").text("Rating: " + rating);
+$("#gifs").on("click", ".click-image", function() {
 
-			var charImg = $("<img>");
-			charImg.attr("src", results[i].images.fixed_height_still.url);
-			charImg.attr("data-still", results[i].images.fixed_height_still.url);
-			charImg.attr("data-animate", results[i].images.fixed_height.url);
-			charImg.attr("data-state", "still");
-			charImg.addClass("imgclick");
-			charDiv.append(charImg);
-			charDiv.append(p);
-			charDiv.addClass("gif-div");
-			$("#gifs").prepend(charDiv);
-		}
-	})
+      var state = $(this).attr("data-state");
+     
+      if (state === "still") {
+        $(this).attr("src", $(this).attr("data-animate"));
+        $(this).attr("data-state", "animate");
+      } else {
+        $(this).attr("src", $(this).attr("data-still"));
+        $(this).attr("data-state", "still");
+    }    
 })
-
 createButtons();
 })
